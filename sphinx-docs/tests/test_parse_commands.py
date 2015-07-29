@@ -11,10 +11,12 @@ from errors import ActionError, OptionError
 
 from nose.tools import assert_equal, raises, with_setup
 
-import sys, os
+import sys
+import os
 
-sys.path.insert(0, os.path.abspath(os.path.join('..','python-packages')))
+sys.path.insert(0, os.path.abspath(os.path.join('..', 'python-packages')))
 import screenshot
+
 
 def test_parse_focus():
     """ Test screenshot._parse_focus() function.
@@ -30,6 +32,7 @@ def test_parse_focus():
     expected_output = {'id': 'id_with_annotation', 'annotation': 'test annotation'}
     actual_output = screenshot._parse_focus(arg_str)
     assert_equal(expected_output, actual_output)
+
 
 def test_parse_command():
     """ Test screenshot._parse_command() function.
@@ -61,6 +64,7 @@ def test_parse_command():
     actual_output = screenshot._parse_command(arg_str)
     assert_equal(expected_output, actual_output)
 
+
 @raises(ActionError)
 def test_parse_command_action_error():
     """ Test ActionError(s) raised by screenshot._parse_command() function.
@@ -68,6 +72,7 @@ def test_parse_command_action_error():
     # Test with an invalid action, should thrown an exception.
     arg_str = 'selector invalid_action'
     screenshot._parse_command(arg_str)
+
 
 @raises(OptionError)
 def test_parse_command_option_error():
@@ -80,6 +85,7 @@ def test_parse_command_option_error():
     # Test 'submit' action with options, should thrown an exception.
     arg_str = 'selector click options'
     screenshot._parse_command(arg_str)
+
 
 def test_parse_login():
     """ Test screenshot._parse_login() function.
@@ -96,19 +102,22 @@ def test_parse_login():
     actual_output = screenshot._parse_login(*args)
     assert_equal(expected_output, actual_output)
 
+
 def test_parse_nav_steps():
     """ Test screenshot._parse_nav_steps() function.
     """
     print sys.path
     # Test with just one command.
     arg_str = 'selector click'
-    expected_output = {'runhandler': '_command_handler', 'args': {'commands': [{'action': 'click', 'options': [], 'selector': 'selector'}]}}
+    expected_output = {'runhandler': '_command_handler', 'args': {
+        'commands': [{'action': 'click', 'options': [], 'selector': 'selector'}]}}
     actual_output = screenshot._parse_nav_steps(arg_str)
     assert_equal(expected_output, actual_output)
 
     # Test with just two commands separated by '|'.
     arg_str = 'selector click | selector2 click'
-    expected_output = {'runhandler': '_command_handler', 'args': {'commands': [{'action': 'click', 'options': [], 'selector': 'selector'},{'action': 'click', 'options': [], 'selector': 'selector2'}]}}
+    expected_output = {'runhandler': '_command_handler', 'args': {'commands': [
+        {'action': 'click', 'options': [], 'selector': 'selector'}, {'action': 'click', 'options': [], 'selector': 'selector2'}]}}
     actual_output = screenshot._parse_nav_steps(arg_str)
     assert_equal(expected_output, actual_output)
 

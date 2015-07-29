@@ -103,7 +103,6 @@ class UserObjectsOnlyAuthorization(Authorization):
 
         raise Unauthorized("Sorry, that operation is restricted.")
 
-
     def delete_list(self, object_list, bundle):
         # Sorry user, no deletes for you!
         raise Unauthorized("Sorry, that operation is restricted.")
@@ -211,7 +210,7 @@ class ObjectAdminAuthorization(ReadOnlyAuthorization):
         if not user.is_authenticated():
             return False
         else:
-            # check that user can access each object we are returning 
+            # check that user can access each object we are returning
             for obj in object_list:
                 # note that this authorization only works for syncable objects
                 if not user.get_profile().has_permission_for_object(obj):
@@ -221,18 +220,17 @@ class ObjectAdminAuthorization(ReadOnlyAuthorization):
     def read_list(self, object_list, bundle):
         # On Central
         if settings.CENTRAL_SERVER and self._is_central_object_admin(object_list, bundle):
-            return object_list            
+            return object_list
         # on distributed
         elif bundle.request.is_admin:
             return object_list
         else:
             raise Unauthorized("Sorry, that operation is restricted.")
 
-
     def read_detail(self, object_list, bundle):
         # On Central
         if settings.CENTRAL_SERVER and self._is_central_object_admin(object_list, bundle):
-            return True            
+            return True
         # on distributed
         elif bundle.request.is_admin:
             return True

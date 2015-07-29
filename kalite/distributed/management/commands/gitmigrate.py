@@ -39,7 +39,8 @@ class Command(BaseCommand):
             print("-------------------------------------------------------------------")
             print("Attempting to copy Database file from previous installation")
             print("-------------------------------------------------------------------\n")
-            shutil.copy2(os.path.join(path, "kalite", "database", "data.sqlite"), os.path.join(os.environ.get("KALITE_DIR"), "kalite", "database", "data.sqlite"))
+            shutil.copy2(os.path.join(path, "kalite", "database", "data.sqlite"), os.path.join(
+                os.environ.get("KALITE_DIR"), "kalite", "database", "data.sqlite"))
             print("***Database file successfully copied***\n")
 
         if not os.path.exists(os.path.join(path, "content")):

@@ -7,7 +7,8 @@ from django.db import connections
 from fle_utils.general import softload_json
 from optparse import make_option
 
-from kalite import settings; logging = settings.LOG
+from kalite import settings
+logging = settings.LOG
 from kalite.topic_tools.models import AssessmentItem
 
 # From topic_tools/__init__.py
@@ -40,7 +41,8 @@ class Command(BaseCommand):
 
         # temporarily swap out the database path for the desired target
         database_path = database_path or connections.databases[database_alias]['NAME']
-        temp_db_path, connections.databases[database_alias]['NAME'] = connections.databases[database_alias]['NAME'], database_path
+        temp_db_path, connections.databases[database_alias][
+            'NAME'] = connections.databases[database_alias]['NAME'], database_path
 
         if bulk_create and os.path.isfile(database_path):
             os.remove(database_path)
@@ -49,11 +51,13 @@ class Command(BaseCommand):
 
         raw_items = softload_json(assessment_items_filepath, logger=logging.debug, raises=False)
         if bulk_create:
-            items = [AssessmentItem(id=k, item_data=v["item_data"], author_names=v["author_names"]) for k, v in raw_items.items()]
+            items = [AssessmentItem(id=k, item_data=v["item_data"], author_names=v["author_names"])
+                     for k, v in raw_items.items()]
             AssessmentItem.objects.bulk_create(items)
         else:
             for k, v in raw_items.iteritems():
-                AssessmentItem.objects.using(database_alias).get_or_create(id=k, defaults={"item_data": v["item_data"], "author_names": v["author_names"]})
+                AssessmentItem.objects.using(database_alias).get_or_create(
+                    id=k, defaults={"item_data": v["item_data"], "author_names": v["author_names"]})
 
         # revert the database path to the original path
         connections.databases[database_alias]['NAME'] = temp_db_path

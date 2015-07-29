@@ -86,7 +86,7 @@ class Command(BaseCommand):
         else:
             executable_path = "kalite"
             cwd = "/"
-        
+
         self.stdout.write(
             script_template % {
                 "executable_path": executable_path,

@@ -32,22 +32,25 @@ KALITECTL_PATH = os.path.realpath(os.path.join(os.path.dirname(os.path.abspath(_
 SCREENSHOT_COMMAND = [sys.executable, KALITECTL_PATH, "manage", "screenshots"]
 SCREENSHOT_COMMAND_OPTS = ["-v", "0", "--output-dir", OUTPUT_PATH]
 # These keys are css styles but they need to be camelCased
-FOCUS_CSS_STYLES = { "borderStyle": "solid",
-                     "borderColor": "red",
-                     "borderWidth": "4px",
-                     "borderRadius": "8px",
-                   }
+FOCUS_CSS_STYLES = {"borderStyle": "solid",
+                    "borderColor": "red",
+                    "borderWidth": "4px",
+                    "borderRadius": "8px",
+                    }
+
 
 def setup(app):
     app.add_directive('screenshot', Screenshot)
     app.connect('env-purge-doc', purge_screenshots)
     app.connect('env-updated', process_screenshots)
 
+
 def purge_screenshots(app, env, docname):
     if not hasattr(env, 'screenshot_all_screenshots'):
         return
     env.screenshot_all_screenshots = [s for s in env.screenshot_all_screenshots
-                          if s['docname'] != docname]
+                                      if s['docname'] != docname]
+
 
 def process_screenshots(app, env):
     if not hasattr(env, 'screenshot_all_screenshots'):
@@ -69,6 +72,7 @@ def process_screenshots(app, env):
     if display:
         display.stop()
 
+
 def _parse_focus(arg_str):
     """ Returns id and annotation after splitting input string.
 
@@ -86,6 +90,7 @@ def _parse_focus(arg_str):
         return {'id': split_str[0].rstrip(), 'annotation': ''}
     else:
         return {'id': split_str[0].rstrip(), 'annotation': split_str[1].lstrip()}
+
 
 def _parse_command(command):
     """" Parses a command into action and options.
@@ -118,9 +123,11 @@ def _parse_command(command):
     # Validate input options for the specified action.
     if action == 'click' or action == 'submit':
         if options:
-            raise OptionError("The action '%s' must not contain any arguments whereas supplied arguments: '%s'." % (action, repr(options)))
+            raise OptionError("The action '%s' must not contain any arguments whereas supplied arguments: '%s'." %
+                              (action, repr(options)))
 
     return {'selector': selector, 'action': action, 'options': options}
+
 
 def _parse_login(username, password, submit=""):
     """" Parses a LOGIN command.
@@ -135,6 +142,7 @@ def _parse_login(username, password, submit=""):
     submit_bool = True if submit == "submit" else False
     args = {'username': username, 'password': password, 'submit': submit_bool}
     return {'runhandler': '_login_handler', 'args': args}
+
 
 def _parse_nav_steps(arg_str):
     """ Here's how to specify the navigation steps:
@@ -151,7 +159,7 @@ def _parse_nav_steps(arg_str):
         Where action could be one of "click", "send_keys", or "submit":
             click has no options and just clicks the element
             send_keys sends a sequence of keystrokes specified as a string by options
-                
+
             submit submits a form and has no options
         Multiple actions on a page can be specified by putting a | separator,
             and specifying the action using the same syntax.
@@ -170,7 +178,7 @@ def _parse_nav_steps(arg_str):
     """
     # The alias with its parse function
     COMMAND_ALIASES = [("LOGIN", _parse_login)]
-    
+
     if not arg_str:
         arg_str = ""
 
@@ -181,16 +189,18 @@ def _parse_nav_steps(arg_str):
             return callback(*words[1:])
 
     commands = arg_str.split('|')
-    parsed_commands = reduce(lambda x,y: x+[y] if y else x, map(_parse_command, commands), [])
+    parsed_commands = reduce(lambda x, y: x + [y] if y else x, map(_parse_command, commands), [])
     runhandler = "_command_handler"
-    return { "runhandler":  runhandler,
-             "args":        {'commands': parsed_commands}}
+    return {"runhandler":  runhandler,
+            "args":        {'commands': parsed_commands}}
+
 
 def _parse_user_role(arg_str):
     if arg_str in USER_ROLES:
         return arg_str
     else:
         raise NotImplementedError("Unrecognized user-role: %s" % arg_str)
+
 
 class Screenshot(Image):
     """ Provides directive to include screenshot based on given options.
@@ -206,7 +216,7 @@ class Screenshot(Image):
     required_arguments = 0
     optional_arguments = 0
     has_content = False
-    
+
     # Add options to the image directive.
     option_spec = Image.option_spec.copy()
     option_spec['url'] = directives.unchanged
@@ -218,7 +228,7 @@ class Screenshot(Image):
     def run(self):
         """ During the build process directives are parsed as nodes, and then
         later the nodes are built into the target format (html, latex, pdf, etc.)
-        
+
         run is called automatically during the parsing process and is expected to
         return a list of nodes. Here we set up our parsing environment, then defer
         to a runhandler callback for parsing. The callback is determined by the
@@ -262,18 +272,18 @@ class Screenshot(Image):
 
     # Handlers are invoked by the run function to parse the directives.
     def _login_handler(self, username, password, submit):
-        from_str_arg = { "users": ["guest"], # This will fail if not guest, because of a redirect
-                         "slug": "",
-                         "start_url": "/",
-                         "inputs": [{"#nav_login": ""},
-                                    {"#id_username": username},
-                                    {"#id_password": password},
+        from_str_arg = {"users": ["guest"],  # This will fail if not guest, because of a redirect
+                        "slug": "",
+                        "start_url": "/",
+                        "inputs": [{"#nav_login": ""},
+                                   {"#id_username": username},
+                                   {"#id_password": password},
                                    ],
-                         "pages": [],
-                         "notes": "",
-                       }
+                        "pages": [],
+                        "notes": "",
+                        }
         if submit:
-            from_str_arg["inputs"].append({".login-btn":""})
+            from_str_arg["inputs"].append({".login-btn": ""})
         from_str_arg = self._common_arg_prep(from_str_arg)
         self.env.screenshot_all_screenshots.append({
             'docname':  self.env.docname,
@@ -284,13 +294,13 @@ class Screenshot(Image):
     def _command_handler(self, commands):
         if not self.url:
             raise NotImplementedError("Please supply a url using the :url: option")
-        from_str_arg = { "users": [self.user_role],
-                         "slug": "",
-                         "start_url": self.url,
-                         "pages": [],
-                         "notes": "",
-                       }        
-        from_str_arg['inputs'] = reduce(lambda x,y: x+y, map(_cmd_to_inputs, commands), [])
+        from_str_arg = {"users": [self.user_role],
+                        "slug": "",
+                        "start_url": self.url,
+                        "pages": [],
+                        "notes": "",
+                        }
+        from_str_arg['inputs'] = reduce(lambda x, y: x + y, map(_cmd_to_inputs, commands), [])
         from_str_arg = self._common_arg_prep(from_str_arg)
         self.env.screenshot_all_screenshots.append({
             'docname':  self.env.docname,
@@ -301,7 +311,7 @@ class Screenshot(Image):
     def _common_arg_prep(self, arg):
         """All commands are handled in the same way regarding these options. """
         new_arg = arg
-        new_arg["inputs"].append({"<slug>":self.filename})
+        new_arg["inputs"].append({"<slug>": self.filename})
         if hasattr(self, "focus_selector"):
             new_arg["focus"] = {}
             new_arg["focus"]["selector"] = self.focus_selector
@@ -312,8 +322,8 @@ class Screenshot(Image):
 
     def _make_image_node(self):
         """Make an image node by safely calling Image.run (i.e. ensure the file exists)."""
-        self.arguments.append(os.path.join("/", SS_DUMP_DIR, self.filename+".png"))
-        open(os.path.join(OUTPUT_PATH, self.filename+".png"), 'w').close()
+        self.arguments.append(os.path.join("/", SS_DUMP_DIR, self.filename + ".png"))
+        open(os.path.join(OUTPUT_PATH, self.filename + ".png"), 'w').close()
         (image_node,) = Image.run(self)
         return image_node
 
@@ -329,6 +339,7 @@ def _specialkeys(k):
     else:
         return k
 
+
 def _cmd_to_inputs(cmd):
     inputs = []
     if cmd['selector'] == 'NEXT':
@@ -338,11 +349,10 @@ def _cmd_to_inputs(cmd):
         sel = ""
     else:
         sel = cmd['selector']
-    if cmd['action']=='click':
+    if cmd['action'] == 'click':
         inputs.append({sel: ""})
-    elif cmd['action']=='submit':
+    elif cmd['action'] == 'submit':
         inputs.append({"<submit>": ""})
-    elif cmd['action']=='send_keys':
-        inputs.append({sel: ' '.join(map(_specialkeys,cmd['options']))})
+    elif cmd['action'] == 'send_keys':
+        inputs.append({sel: ' '.join(map(_specialkeys, cmd['options']))})
     return inputs
-

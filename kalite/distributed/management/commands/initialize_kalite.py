@@ -23,7 +23,7 @@ class Command(BaseCommand):
 
     def setup_server_if_needed(self):
         """Run the setup command, if necessary."""
-        
+
         # Ensure that the database has been synced and a Device has been created
         try:
             assert Settings.get("private_key") and Device.objects.count()
@@ -32,7 +32,8 @@ class Command(BaseCommand):
             self.stdout.write("Setting up KA Lite; this may take a few minutes; please wait!\n")
             call_command("setup", interactive=False)
         # Double check that the setup process successfully created a Device
-        assert Settings.get("private_key") and Device.objects.count(), "There was an error configuring the server. Please report the output of this command to Learning Equality."
+        assert Settings.get("private_key") and Device.objects.count(
+        ), "There was an error configuring the server. Please report the output of this command to Learning Equality."
 
     def reinitialize_server(self):
         """Reset the server state."""

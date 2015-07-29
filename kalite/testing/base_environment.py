@@ -13,11 +13,14 @@ from django.contrib.auth.models import User
 
 from kalite.testing.behave_helpers import login_as_admin, login_as_coach, logout, login_as_learner
 
+
 def before_all(context):
     pass
 
+
 def after_all(context):
     pass
+
 
 def before_feature(context, feature):
     browser = context.browser = webdriver.Firefox()
@@ -39,6 +42,7 @@ def before_feature(context, feature):
         context.logged_in = True
         login_as_learner(context)
 
+
 def after_feature(context, feature):
     if context.logged_in:
         logout(context)
@@ -47,8 +51,10 @@ def after_feature(context, feature):
     except CannotSendRequest:
         pass
 
+
 def before_scenario(context, scenario):
     pass
+
 
 def after_scenario(context, scenario):
     pass

@@ -24,7 +24,7 @@ def before_feature(context, feature):
                 streak_progress=50,
                 attempts=15,
                 latest_activity_timestamp=datetime.datetime.now()
-                )
+            )
             log.save()
         context.exercises = exercises
 
@@ -38,6 +38,6 @@ def before_feature(context, feature):
                 total_seconds_watched=100,
                 points=600,
                 latest_activity_timestamp=datetime.datetime.now()
-                )
+            )
             log.save()
         context.videos = videos

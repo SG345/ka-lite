@@ -13,7 +13,8 @@ from itertools import islice
 
 from django.contrib.auth import login as auth_login
 from django.contrib.auth.models import User
-from django.conf import settings; logging = settings.LOG
+from django.conf import settings
+logging = settings.LOG
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseNotFound, HttpResponseRedirect, HttpResponseServerError, HttpResponse
@@ -54,10 +55,12 @@ def check_setup_status(handler):
             # TODO(bcipolli): move this to the client side?
             if not request.session.get("registered", True) and BaseClient().test_connection() == "success":
                 # Being able to register is more rare, so prioritize.
-                messages.warning(request, mark_safe("Please <a href='%s'>follow the directions to register your device</a>, so that it can synchronize with the central server." % reverse("register_public_key")))
+                messages.warning(request, mark_safe(
+                    "Please <a href='%s'>follow the directions to register your device</a>, so that it can synchronize with the central server." % reverse("register_public_key")))
             elif not request.session["facility_exists"]:
                 zone_id = (Zone.objects.all() and Zone.objects.all()[0].id) or "None"
-                messages.warning(request, mark_safe("Please <a href='%s'>create a facility</a> now. Users will not be able to sign up for accounts until you have made a facility." % reverse("add_facility", kwargs={"zone_id": zone_id})))
+                messages.warning(request, mark_safe("Please <a href='%s'>create a facility</a> now. Users will not be able to sign up for accounts until you have made a facility." %
+                                                    reverse("add_facility", kwargs={"zone_id": zone_id})))
 
         elif not request.is_logged_in:
             if not request.session.get("registered", True) and BaseClient().test_connection() == "success":
@@ -99,6 +102,7 @@ def homepage(request):
     """
     return {}
 
+
 def watch_home(request):
     """Dummy wrapper function for topic_handler with url=/"""
     return topic_handler(request, cached_nodes={"topic": topic_tools.get_topic_tree()})
@@ -115,7 +119,7 @@ def help(request):
 @render_to("distributed/help_admin.html")
 def help_admin(request):
     context = {
-        "wiki_url" : settings.CENTRAL_WIKI_URL,
+        "wiki_url": settings.CENTRAL_WIKI_URL,
         "ips": get_ip_addresses(include_loopback=False),
         "port": request.META.get("SERVER_PORT") or settings.USER_FACING_PORT(),
     }
@@ -126,7 +130,7 @@ def help_admin(request):
 def help_student(request):
 
     context = {
-        "wiki_url" : settings.CENTRAL_WIKI_URL,
+        "wiki_url": settings.CENTRAL_WIKI_URL,
     }
     return context
 
@@ -165,7 +169,6 @@ def search(request):
     possible_matches = {}
     hit_max = {}
 
-
     node_kinds = {
         "Topic": ["Topic"],
         "Exercise": ["Exercise"],
@@ -186,7 +189,8 @@ def search(request):
                 # Skip categories that don't match (if specified)
                 continue
 
-            exact_match = filter(lambda node: node["kind"] in node_kinds[node_type] and node["title"].lower() == query, node_dict.values())[:1]
+            exact_match = filter(lambda node: node["kind"] in node_kinds[node_type]
+                                 and node["title"].lower() == query, node_dict.values())[:1]
 
             if exact_match:
                 # Redirect to an exact match
@@ -194,12 +198,13 @@ def search(request):
 
             # For efficiency, don't do substring matches when we've got lots of results
             match_generator = (node for node in node_dict.values()
-                if node["kind"] in node_kinds[node_type] and (query in node["title"].lower() or query in [x.lower() for x in node.get('keywords', [])] or
-                query in [x.lower() for x in node.get('tags', [])]))
+                               if node["kind"] in node_kinds[node_type] and (query in node["title"].lower() or query in [x.lower() for x in node.get('keywords', [])] or
+                                                                             query in [x.lower() for x in node.get('tags', [])]))
 
             # Only return max results
             try:
-                possible_matches[node_type] = list(islice(match_generator, (page-1)*max_results_per_category, page*max_results_per_category))
+                possible_matches[node_type] = list(islice(match_generator, (page - 1) *
+                                                          max_results_per_category, page * max_results_per_category))
             except ValueError:
                 return HttpResponseNotFound("Page does not exist")
 
@@ -229,12 +234,14 @@ def search(request):
         'category': category,
     }
 
+
 def add_superuser_form(request):
     if request.method == 'POST':
         form = SuperuserForm()
         return_html = render_to_string('admin/superuser_form.html', {'form': form}, context_instance=RequestContext(request))
-        data = {'Status' : 'ShowModal', 'data' : return_html}
+        data = {'Status': 'ShowModal', 'data': return_html}
         return HttpResponse(json.dumps(data), content_type="application/json")
+
 
 def create_superuser(request):
     if request.method == 'POST':
@@ -247,20 +254,22 @@ def create_superuser(request):
             confirmsuperpassword = cd.get('confirmsuperpassword')
             if superpassword != confirmsuperpassword:
                 form.errors['confirmsuperpassword'] = form.error_class([_("Passwords don't match!")])
-                return_html = render_to_string('admin/superuser_form.html', {'form': form}, context_instance=RequestContext(request))
-                data = {'Status' : 'Invalid', 'data' : return_html}
+                return_html = render_to_string('admin/superuser_form.html',
+                                               {'form': form}, context_instance=RequestContext(request))
+                data = {'Status': 'Invalid', 'data': return_html}
             else:
                 superemail = "superuser@learningequality.org"
                 User.objects.create_superuser(username=superusername, password=superpassword, email=superemail)
-                data = {'Status' : 'Success'}
+                data = {'Status': 'Success'}
         else:
             cd = form.cleaned_data
             if cd.get('confirmsuperpassword') != cd.get('superpassword'):
                 form.errors['confirmsuperpassword'] = form.error_class([_("Passwords don't match!")])
             return_html = render_to_string('admin/superuser_form.html', {'form': form}, context_instance=RequestContext(request))
-            data = {'Status' : 'Invalid', 'data' : return_html}
+            data = {'Status': 'Invalid', 'data': return_html}
 
         return HttpResponse(json.dumps(data), content_type="application/json")
+
 
 def crypto_login(request):
     """
@@ -288,7 +297,7 @@ def crypto_login(request):
 
 def handler_403(request, *args, **kwargs):
     context = RequestContext(request)
-    #message = None  # Need to retrieve, but can't figure it out yet.
+    # message = None  # Need to retrieve, but can't figure it out yet.
 
     if request.is_ajax():
         return JsonResponseMessageError(_("You must be logged in with an account authorized to view this page (API)."), status=403)
@@ -296,9 +305,11 @@ def handler_403(request, *args, **kwargs):
         messages.error(request, mark_safe(_("You must be logged in with an account authorized to view this page.")))
         return HttpResponseRedirect(set_query_params(reverse("homepage"), {"next": request.get_full_path(), "login": True}))
 
+
 @render_to("distributed/perseus.html")
 def perseus(request):
     return {}
+
 
 def handler_404(request):
     return HttpResponseNotFound(render_to_string("distributed/404.html", {}, context_instance=RequestContext(request)))

@@ -7,6 +7,7 @@ from django.utils.translation import ugettext as _
 from kalite.shared.decorators.auth import get_user_from_request
 from .models import PlaylistProgress, PlaylistProgressDetail
 
+
 class CoachReportBaseResource(Resource):
     """
     A base resource that houses shared code between the resources we actually use 
@@ -19,7 +20,7 @@ class CoachReportBaseResource(Resource):
         Require that the users are logged in, and that the user is the same student 
         whose data is being requested, an admin, or a teacher in that facility
         """
-        if getattr(request, "is_logged_in", False):  
+        if getattr(request, "is_logged_in", False):
             pass
         else:
             raise Unauthorized(_("You must be logged in to access this page."))
@@ -75,6 +76,7 @@ class PlaylistProgressResource(CoachReportBaseResource):
         result = PlaylistProgress.user_progress(user_id=user_id)
         return result
 
+
 class PlaylistProgressDetailResource(CoachReportBaseResource):
 
     kind = fields.CharField(attribute='kind')
@@ -92,6 +94,6 @@ class PlaylistProgressDetailResource(CoachReportBaseResource):
         playlist_id = request.GET.get("playlist_id")
         result = PlaylistProgressDetail.user_progress_detail(user_id=user_id, playlist_id=playlist_id)
         if not result:
-            raise NotFound("User playlist progress details with user ID '%s' and playlist ID '%s' were not found." % (user_id, playlist_id))        
+            raise NotFound("User playlist progress details with user ID '%s' and playlist ID '%s' were not found." %
+                           (user_id, playlist_id))
         return result
-

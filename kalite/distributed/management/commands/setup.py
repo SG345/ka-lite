@@ -258,12 +258,12 @@ class Command(BaseCommand):
 
         if git_migrate_path:
             call_command("gitmigrate", path=git_migrate_path)
-        
+
         # TODO(benjaoming): This is used very loosely, what does it mean?
         # Does it mean that the installation path is clean or does it mean
         # that we should remove (clean) items from a previous installation?
         install_clean = not kalite.is_installed()
-        
+
         database_kind = settings.DATABASES["default"]["ENGINE"]
         database_file = (
             "sqlite" in database_kind and settings.DATABASES["default"]["NAME"]) or None
@@ -311,8 +311,8 @@ class Command(BaseCommand):
                 options["hostname"], options["description"])
         else:
             username = options["username"] = options["username"] or \
-                                             getattr(settings, "INSTALL_ADMIN_USERNAME", None) or \
-                                             get_clean_default_username()
+                getattr(settings, "INSTALL_ADMIN_USERNAME", None) or \
+                get_clean_default_username()
             password = options["password"] or getattr(settings, "INSTALL_ADMIN_PASSWORD", None)
             email = options["email"]  # default is non-empty
             hostname = options["hostname"]
@@ -339,7 +339,7 @@ class Command(BaseCommand):
             # Try locating django
             for dir_to_clean in distributed_packages:
                 clean_pyc(dir_to_clean)
-            
+
         # Move database file (if exists)
         if install_clean and database_file and os.path.exists(database_file):
             # This is an overwrite install; destroy the old db

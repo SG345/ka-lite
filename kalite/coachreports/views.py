@@ -1,11 +1,13 @@
 from annoying.decorators import render_to
 
-from django.conf import settings; logging = settings.LOG
+from django.conf import settings
+logging = settings.LOG
 from django.core.exceptions import ValidationError
 from django.http import Http404
 
 from kalite.main.models import UserLog
 from kalite.shared.decorators.auth import require_authorized_access_to_student_data, require_authorized_admin, get_user_from_request
+
 
 @require_authorized_access_to_student_data
 @render_to("coachreports/student_view.html")
@@ -39,7 +41,6 @@ def student_view_context(request):
 def coach_reports(request):
     """Landing page needs plotting context in order to generate the navbar"""
     return {}
-
 
 
 def log_coach_report_view(request):

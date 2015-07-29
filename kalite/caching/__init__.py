@@ -17,12 +17,14 @@ For any app implementing cacheable data or writing to the web cache, the app sho
     across all apps, by calling invalidate_inmemory_caches
 * Call invalidate_web_cache (from fle_utils.internet.webcache)
 """
-from django.conf import settings; logging = settings.LOG
+from django.conf import settings
+logging = settings.LOG
 from django.core.urlresolvers import reverse
 from django.test.client import Client
 
 from fle_utils.internet.webcache import *
 from kalite import i18n, topic_tools
+
 
 def create_cache_entry(path=None, url_name=None, cache=None, force=False):
     """Create a cache entry"""
@@ -69,6 +71,7 @@ def invalidate_all_caches():
     if caching_is_enabled():
         invalidate_web_cache()
     logging.debug("Great success emptying all caches.")
+
 
 def initialize_content_caches(force=False):
     """

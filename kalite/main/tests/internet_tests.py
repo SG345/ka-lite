@@ -8,6 +8,7 @@ from fle_utils.internet.functions import am_i_online
 
 
 class OnlineTests(LiveServerTestCase):
+
     def test_am_online(self):
         """The only thing I'm guaranteed to have online?  Myself."""
 
@@ -21,5 +22,3 @@ class OnlineTests(LiveServerTestCase):
         # search_string
         self.assertTrue(am_i_online(self.live_server_url, search_string="KA Lite"), "Test search_string should succeed")
         self.assertFalse(am_i_online(self.live_server_url, search_string="foofoofoo"), "Test search_string fails")
-
-

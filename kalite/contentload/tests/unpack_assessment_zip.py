@@ -23,6 +23,7 @@ DUMMY_ASSESSMENT_ITEM_DATABASE_SOURCE_PATH = os.path.join(os.path.dirname(__file
 MODIFIED_DB_SETTINGS = copy.deepcopy(settings.DATABASES)
 MODIFIED_DB_SETTINGS["assessment_items"]["NAME"] = TEMP_ASSESSMENT_ITEM_DATABASE_PATH
 
+
 @override_settings(KHAN_CONTENT_PATH=TEMP_KHAN_CONTENT_PATH)
 @override_settings(KHAN_ASSESSMENT_ITEM_DATABASE_PATH=TEMP_ASSESSMENT_ITEM_DATABASE_PATH)
 @override_settings(KHAN_ASSESSMENT_ITEM_VERSION_PATH=TEMP_ASSESSMENT_ITEM_VERSION_PATH)
@@ -54,7 +55,6 @@ class UnpackAssessmentZipCommandTests(KALiteTestCase):
         call_command("unpack_assessment_zip", filename)
         self.assertEqual(mod.open.call_count, 0,  "open was called even if we should've skipped!")
 
-
     @patch.object(requests, "get", autospec=True)
     def test_command_with_url(self, get_method):
         url = "http://fakeurl.com/test.zip"
@@ -82,7 +82,8 @@ class UnpackAssessmentZipCommandTests(KALiteTestCase):
                     continue
                 else:
                     filename_path = os.path.join(mod.KHAN_CONTENT_PATH, filename)
-                    self.assertTrue(os.path.exists(filename_path), "%s wasn't extracted to %s" % (filename, mod.KHAN_CONTENT_PATH))
+                    self.assertTrue(os.path.exists(filename_path), "%s wasn't extracted to %s" %
+                                    (filename, mod.KHAN_CONTENT_PATH))
 
     def test_command_with_local_path(self):
         pass
@@ -122,7 +123,7 @@ class UnpackAssessmentZipUtilityFunctionTests(KALiteTestCase):
         invalid_urls = [
             "/something.path",
             "/path/to/somewhere"
-            ]
+        ]
 
         for url in invalid_urls:
             self.assertFalse(mod.is_valid_url(url))

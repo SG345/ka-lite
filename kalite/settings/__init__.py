@@ -38,7 +38,8 @@ CHERRYPY_PORT = getattr(local_settings, "CHERRYPY_PORT", PRODUCTION_PORT)
 #  to override the auto-detection, set CONFIG_PACKAGE=None in the local_settings
 ########################
 
-CONFIG_PACKAGE = getattr(local_settings, "CONFIG_PACKAGE", "RPi" if (platform.uname()[0] == "Linux" and platform.uname()[4] == "armv6l") else [])
+CONFIG_PACKAGE = getattr(local_settings, "CONFIG_PACKAGE", "RPi" if (
+    platform.uname()[0] == "Linux" and platform.uname()[4] == "armv6l") else [])
 
 if isinstance(CONFIG_PACKAGE, basestring):
     CONFIG_PACKAGE = [CONFIG_PACKAGE]
@@ -140,4 +141,3 @@ if 'screenshots' in sys.argv:
             "NAME": ":memory:",
         },
     }
-
